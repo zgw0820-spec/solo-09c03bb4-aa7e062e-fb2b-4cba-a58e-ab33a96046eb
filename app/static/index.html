@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>节点排空演练台</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">⇄</span>
+      <div>
+        <h1>节点排空演练台</h1>
+        <p class="subtitle">预留容量 → 新副本就绪 → 旧副本下线 · 数据持久化在 SQLite</p>
+      </div>
+    </div>
+    <div class="topbar-status" id="topbar-status" aria-live="polite"></div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="panel" id="import-panel">
+        <div class="panel-head">
+          <h2>导入集群</h2>
+          <span class="hint">最多 4 节点 / 8 容器</span>
+        </div>
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="paste" role="tab">粘贴 JSON</button>
+          <button class="tab" data-tab="file" role="tab">上传文件</button>
+        </div>
+        <div class="tab-body" data-tab-body="paste">
+          <textarea id="json-input" spellcheck="false" placeholder='{"nodes":[...],"containers":[...]}'></textarea>
+        </div>
+        <div class="tab-body hidden" data-tab-body="file">
+          <label class="file-drop" id="file-drop">
+            <input type="file" id="json-file" accept="application/json,.json" hidden />
+            <span>点击选择或拖拽 JSON 文件</span>
+            <small id="file-name">未选择文件</small>
+          </label>
+        </div>
+        <div class="row gap">
+          <button class="btn" id="import-btn">导入并重置演练</button>
+          <button class="btn ghost" id="sample-btn">载入示例</button>
+        </div>
+        <pre class="alert hidden" id="import-error" role="alert"></pre>
+        <details class="schema-help">
+          <summary>JSON 字段说明</summary>
+          <pre>{
+  "nodes": [{"id": "node-a", "name": "A 机柜", "cpu_capacity": 16}],
+  "containers": [{
+    "id": "api-1", "name": "api-1", "service": "api",
+    "min_ready": 2, "node_id": "node-a", "cpu_request": 2
+  }]
+}</pre>
+          <p>同一业务的所有容器 <code>min_ready</code> 必须一致；节点容量不得超卖。</p>
+        </details>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>节点</h2>
+          <span class="hint" id="node-count">0 / 4</span>
+        </div>
+        <div id="node-list" class="node-list"></div>
+        <p class="empty" id="node-empty">尚未导入集群拓扑。</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>业务就绪度</h2>
+          <span class="hint">未就绪副本不计入</span>
+        </div>
+        <table class="mini-table">
+          <thead>
+            <tr><th>业务</th><th>就绪/最小</th><th>启动中</th><th>状态</th></tr>
+          </thead>
+          <tbody id="service-body">
+            <tr><td colspan="4" class="empty">暂无数据</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </aside>
+
+    <div class="content">
+      <section class="panel" id="drain-panel">
+        <div class="panel-head">
+          <h2>排空进度</h2>
+          <span class="hint" id="drain-hint">选择左侧节点发起排空</span>
+        </div>
+        <div id="drain-body">
+          <p class="empty">尚未选择排空任务。</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>受阻容器</h2>
+          <span class="hint">旧副本仍在服务，可修正后重试</span>
+        </div>
+        <div id="blocked-body"><p class="empty">没有受阻容器。</p></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>容器分布</h2>
+          <span class="hint" id="container-count">0 / 8</span>
+        </div>
+        <div class="table-wrap">
+          <table class="grid-table">
+            <thead>
+              <tr>
+                <th>容器</th><th>业务</th><th>CPU 请求</th><th>所在节点</th>
+                <th>状态</th><th>迁移</th>
+              </tr>
+            </thead>
+            <tbody id="container-body">
+              <tr><td colspan="6" class="empty">暂无数据</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>排空历史</h2>
+          <span class="hint" id="history-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="grid-table">
+            <thead>
+              <tr><th>#</th><th>节点</th><th>状态</th><th>进度</th><th>待决策</th><th>开始</th><th>结束</th></tr>
+            </thead>
+            <tbody id="history-body">
+              <tr><td colspan="7" class="empty">暂无记录</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast hidden" id="toast" role="status"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

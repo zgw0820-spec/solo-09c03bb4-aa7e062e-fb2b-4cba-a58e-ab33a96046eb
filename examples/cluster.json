@@ -1,0 +1,18 @@
+{
+  "nodes": [
+    {"id": "node-a", "name": "机房 A 机柜-01", "cpu_capacity": 16},
+    {"id": "node-b", "name": "机房 A 机柜-02", "cpu_capacity": 16},
+    {"id": "node-c", "name": "机房 A 机柜-03", "cpu_capacity": 8},
+    {"id": "node-d", "name": "机房 A 机柜-04", "cpu_capacity": 4}
+  ],
+  "containers": [
+    {"id": "api-1", "name": "api-1", "service": "api", "min_ready": 2, "node_id": "node-a", "cpu_request": 2},
+    {"id": "api-2", "name": "api-2", "service": "api", "min_ready": 2, "node_id": "node-a", "cpu_request": 2},
+    {"id": "api-3", "name": "api-3", "service": "api", "min_ready": 2, "node_id": "node-b", "cpu_request": 2},
+    {"id": "web-1", "name": "web-1", "service": "web", "min_ready": 1, "node_id": "node-a", "cpu_request": 1},
+    {"id": "web-2", "name": "web-2", "service": "web", "min_ready": 1, "node_id": "node-b", "cpu_request": 1},
+    {"id": "worker-1", "name": "worker-1", "service": "workers", "min_ready": 1, "node_id": "node-a", "cpu_request": 3},
+    {"id": "worker-2", "name": "worker-2", "service": "workers", "min_ready": 1, "node_id": "node-b", "cpu_request": 3},
+    {"id": "cache-1", "name": "cache-1", "service": "cache", "min_ready": 1, "node_id": "node-d", "cpu_request": 4}
+  ]
+}

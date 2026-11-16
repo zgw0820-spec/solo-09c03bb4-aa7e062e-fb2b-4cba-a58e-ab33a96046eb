@@ -1,0 +1,25 @@
+services:
+  simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node-drain-simulator
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      DATABASE_PATH: /data/rehearsal.db
+      # First start only: load a demo topology if the database is empty.
+      SEED_TOPOLOGY: /app/examples/cluster.json
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - simulator-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  simulator-data:
